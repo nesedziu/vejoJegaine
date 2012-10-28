@@ -19,6 +19,8 @@ unsigned int G_voltage_Measurement_s;
 unsigned int G_windSpeed_measurement_s;
 unsigned int G_windAngle_measurement_s;
 
+unsigned int G_anemometer_freq_s = 0;
+
 void input_task(void)
 {	
 	//nuskaito mygtukus
@@ -35,15 +37,32 @@ void timers_init(void)
 {
 	/*ne mano, paemiau is neto, testu nera*/
 	//http://www.avrfreaks.net/index.php?name=PNphpBB2&file=printview&t=50106&start=0
+	//Timer1
    TCCR1B |= (1 << WGM12); // Configure timer 1 for CTC mode
 
    TIMSK |= (1 << OCIE1A); // Enable CTC interrupt
 
-   sei(); //  Enable global interrupts
+   //sei(); //  Enable global interrupts
 
    OCR1A   = 15624; // Set CTC compare value to 1Hz at 1MHz AVR clock, with a prescaler of 64
 
    TCCR1B |= ((1 << CS10) | (1 << CS11)); // Start timer at Fcpu/64
+   //-----------------------------------------------------------------------------------
+   // Timer0
+   //-----------------------------------------------------------------------------------	
+	DDRB &= ~(1 << PB0);     // Clear the PD4 pin
+	// PD4 is now an input
+
+	//PORTB |= (1 << PB4);   // turn On the Pull-up
+	// PD4 is now an input with pull-up enabled
+
+	TCCR0 |= (1 << CS02) | (1 << CS01) | (1 << CS00);
+	// Turn on the counter, Clock on Rise
+
+	// enable global interrupts
+	sei(); //  Enable global interrupts
+
+   //-----------------------------------------------------------------------------------
 } 
 
 int main(void)
@@ -68,4 +87,7 @@ ISR(TIMER1_COMPA_vect)
 	G_voltage_Measurement_s++;
 	G_windAngle_measurement_s++;
 	G_windSpeed_measurement_s++;
+	
+	G_anemometer_freq_s = TCNT0;
+	TCNT0 = 0;
 }
