@@ -12,6 +12,7 @@
 #include "measurements.h"
 #include "measurement_buffs.h"
 #include "control.h"
+#include "ADC.h"
 
 
 unsigned int G_voltage_Measurement_s;
@@ -50,6 +51,7 @@ int main(void)
 	buffs_init();
 	timers_init();
 	measurements_init();
+	adc_init();
 	sei();
 	
     while(1)
