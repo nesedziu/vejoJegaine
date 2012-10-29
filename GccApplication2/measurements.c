@@ -9,12 +9,13 @@
 #include "measurement_buffs.h"
 #include "ADC.h"
 
-
+extern unsigned int G_anemometer_freq_s;
 
 unsigned int measure_voltage(void)
 {
+	
 	//TODO: implement
-	return  0;
+	return   (adc_read(VOLTAGE_MEASUREMENT_DIFF1_ADC_PIN) - adc_read(VOLTAGE_MEASUREMENT_DIFF2_ADC_PIN))*4;
 }
 
 unsigned int measure_windAngle(void)
@@ -44,12 +45,13 @@ void measurements_task(void)
 		if(G_voltage_measurement_Buff.index >= VOLTAGE_MEASUREMENT_BUFF_SIZE)
 		{
 			G_voltage_measurement_Buff.index = 0;
-			G_voltage_measurement_Buff.length = 0;
 		}
 	
 		G_voltage_measurement_Buff.buff[G_voltage_measurement_Buff.index] = measure_voltage();
 		G_voltage_measurement_Buff.index++;
-		G_voltage_measurement_Buff.length++;
+		
+		if(!(G_voltage_measurement_Buff.length >= VOLTAGE_MEASUREMENT_BUFF_SIZE))
+			G_voltage_measurement_Buff.length++;
 	}
 	if (G_windAngle_measurement_s >= WIND_ANGLE_MEASUREMENT_PERIOD)
 	{//kai sitie buferiai persipildo juos nunulina control task
@@ -58,20 +60,31 @@ void measurements_task(void)
 		if(G_WindAngle_Buff.index >= WIND_ANGLE_BUFF_SIZE)
 		{
 			G_WindAngle_Buff.index = 0;
-			G_WindAngle_Buff.length = 0;
 		}
 		
 		G_WindAngle_Buff.buff[G_voltage_measurement_Buff.index] = measure_windAngle();
 		G_WindAngle_Buff.index++;
-		G_WindAngle_Buff.length++;
+		
+		if(!(G_WindAngle_Buff.length >= VOLTAGE_MEASUREMENT_BUFF_SIZE))
+			G_WindAngle_Buff.length++;
 		
 	}
 	//matavaimai bus atliekami pertrauktimi, pasinaudojus kitu taimeriu
-/*	if (G_windSpeed_measurement_s >= WIND_SPEED_MEASUREMENT_PERIOD)
+	if (G_windSpeed_measurement_s >= WIND_SPEED_MEASUREMENT_PERIOD)
 	{
-		G_windAngle_measurement_s = 0;
+		G_windSpeed_measurement_s = 0;
+		if(G_WindSpeed_Buff.index >= WIND_ANGLE_BUFF_SIZE)
+		{
+			G_WindSpeed_Buff.index = 0;
+		}
+		
+		G_WindSpeed_Buff.buff[G_voltage_measurement_Buff.index] = G_anemometer_freq_s;
+		G_WindSpeed_Buff.index++;
+		
+		if(!(G_WindSpeed_Buff.length >= VOLTAGE_MEASUREMENT_BUFF_SIZE))
+			G_WindSpeed_Buff.length++;
 		//TODO: implement
-	}*/
+	}
 }
 
 void measurements_init(void)

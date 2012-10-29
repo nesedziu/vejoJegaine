@@ -8,11 +8,13 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "stdio.h"
 #include "Global_defs.h"
 #include "measurements.h"
 #include "measurement_buffs.h"
 #include "control.h"
 #include "ADC.h"
+#include "UART.h"//TODO: repair
 
 
 unsigned int G_voltage_Measurement_s;
@@ -29,8 +31,24 @@ void input_task(void)
 }
 void output_task(void)
 {
-	//pakolkas naudojamas tik info atvaizdavimui i lcd
-	//TODO: implement
+	
+	snprintf((char*)uartBuff,50,"labas:%d",G_WindAngle_Buff.buff[G_WindAngle_Buff.index-1]);
+	print_to_serial(uartBuff);
+	
+	//TransmitCharUSART('\n');
+	//TransmitCharUSART('\r');
+	//TransmitUnsignedInt(G_WindAngle_Buff.buff[G_WindAngle_Buff.index-1]);
+	//TransmitCharUSART('o');
+	//TransmitCharUSART('\n');
+	//TransmitCharUSART('\r');
+	//TransmitUnsignedInt(G_WindSpeed_Buff.buff[G_WindSpeed_Buff.index-1]);
+	//TransmitCharUSART('s');
+	//TransmitCharUSART('\n');
+	//TransmitCharUSART('\r');
+	//TransmitUnsignedInt(G_voltage_measurement_Buff.buff[G_voltage_measurement_Buff.index-1]);
+	//TransmitCharUSART('V');
+	
+	
 }
 
 void timers_init(void)
@@ -67,6 +85,7 @@ void timers_init(void)
 
 int main(void)
 {
+	InitUSART();
 	buffs_init();
 	timers_init();
 	measurements_init();
