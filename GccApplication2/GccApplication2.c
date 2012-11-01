@@ -14,14 +14,19 @@
 #include "measurement_buffs.h"
 #include "control.h"
 #include "ADC.h"
-#include "UART.h"//TODO: repair
+#include "UART.h"
 
 
 unsigned int G_voltage_Measurement_s;
 unsigned int G_windSpeed_measurement_s;
 unsigned int G_windAngle_measurement_s;
+unsigned int G_display_s;
 
-unsigned int G_anemometer_freq_s = 0;
+#define DEBUG
+#ifdef DEBUG
+unsigned int G_anemometer_freq_s = 0;//debug
+#define DISPLAY_PERIOD_S 5 //debug
+#endif
 
 void input_task(void)
 {	
@@ -31,23 +36,18 @@ void input_task(void)
 }
 void output_task(void)
 {
-	
-	snprintf((char*)uartBuff,50,"labas:%d",G_WindAngle_Buff.buff[G_WindAngle_Buff.index-1]);
-	print_to_serial(uartBuff);
-	
-	//TransmitCharUSART('\n');
-	//TransmitCharUSART('\r');
-	//TransmitUnsignedInt(G_WindAngle_Buff.buff[G_WindAngle_Buff.index-1]);
-	//TransmitCharUSART('o');
-	//TransmitCharUSART('\n');
-	//TransmitCharUSART('\r');
-	//TransmitUnsignedInt(G_WindSpeed_Buff.buff[G_WindSpeed_Buff.index-1]);
-	//TransmitCharUSART('s');
-	//TransmitCharUSART('\n');
-	//TransmitCharUSART('\r');
-	//TransmitUnsignedInt(G_voltage_measurement_Buff.buff[G_voltage_measurement_Buff.index-1]);
-	//TransmitCharUSART('V');
-	
+	#ifdef DEBUG
+	if (G_display_s >= DISPLAY_PERIOD_S)
+	{
+		G_display_s = 0;
+		snprintf((char*)uartBuff,50,"wind angle: %d/n/r", G_WindAngle_Buff.buff[G_WindAngle_Buff.index-1]);
+		print_to_serial(uartBuff);
+		snprintf((char*)uartBuff,50,"wind speed: %d/n/r", G_WindSpeed_Buff.buff[G_WindSpeed_Buff.index-1]);
+		print_to_serial(uartBuff);
+		snprintf((char*)uartBuff,50,"voltage: %d/n/r", G_voltage_measurement_Buff.buff[G_voltage_measurement_Buff.index-1]);
+		print_to_serial(uartBuff);
+	}
+	#endif
 	
 }
 
@@ -62,9 +62,9 @@ void timers_init(void)
 
    //sei(); //  Enable global interrupts
 
-   OCR1A   = 15624; // Set CTC compare value to 1Hz at 1MHz AVR clock, with a prescaler of 64
+   OCR1A   = 31249; // Set CTC compare value to 1Hz at 1MHz AVR clock, with a prescaler of 64
 
-   TCCR1B |= ((1 << CS10) | (1 << CS11)); // Start timer at Fcpu/64
+   TCCR1B |= (1 << CS12); // Start timer at Fcpu/64
    //-----------------------------------------------------------------------------------
    // Timer0
    //-----------------------------------------------------------------------------------	
@@ -106,6 +106,9 @@ ISR(TIMER1_COMPA_vect)
 	G_voltage_Measurement_s++;
 	G_windAngle_measurement_s++;
 	G_windSpeed_measurement_s++;
+	#ifdef DEBUG
+	G_display_s++;//display
+	#endif
 	
 	G_anemometer_freq_s = TCNT0;
 	TCNT0 = 0;

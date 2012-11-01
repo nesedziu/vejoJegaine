@@ -13,9 +13,18 @@ extern unsigned int G_anemometer_freq_s;
 
 unsigned int measure_voltage(void)
 {
+int i =0;
+unsigned int voltage = 0;
 	
-	//TODO: implement
-	return   (adc_read(VOLTAGE_MEASUREMENT_DIFF1_ADC_PIN) - adc_read(VOLTAGE_MEASUREMENT_DIFF2_ADC_PIN))*4;
+	//Atsakymas isduodamas milivoltais//
+	//TODO: isduoda butent tiek voltu kiek mato, perdaryti, kad paverstu i itampa gaunama is jegaines
+	for (i = 0; i < 10; i++)
+	{
+		voltage += (adc_read(VOLTAGE_MEASUREMENT_DIFF1_ADC_PIN) - adc_read(VOLTAGE_MEASUREMENT_DIFF2_ADC_PIN))*5;
+	}	
+	
+	voltage /= 10;
+	return voltage;
 }
 
 unsigned int measure_windAngle(void)
