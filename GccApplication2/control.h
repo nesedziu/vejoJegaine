@@ -5,6 +5,7 @@
  *  Author: Karolis
  */ 
 
+void output_port_config(void);
 void control_task(void);
 void buff_eval_task(void);//patikrinti buferius, jei reik nunulinti, uzstatyti flagus shunt_control ir rotation task'ams
 void rotation_task(void);

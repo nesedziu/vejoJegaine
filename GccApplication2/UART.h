@@ -4,15 +4,8 @@
  * Created: 2012.10.28 16:02:05
  *  Author: Karolis
  */ 
-
-extern unsigned char uartBuff[50];
+#define LOGMAX 72
+extern char commsg[LOGMAX];
 
 void InitUSART(void);
-
-
-void TransmitCharUSART(char cData);
-
-
-void TransmitUnsignedInt(unsigned int val);
-
-void print_to_serial (unsigned char *data);
+void print_to_com(const char *data);

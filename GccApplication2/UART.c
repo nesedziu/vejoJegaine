@@ -5,11 +5,15 @@
  *  Author: Karolis
  */ 
 #include <avr/io.h>
-#define F_CPU	        8000000UL
+#include "string.h"
+#include "UART.h"
+#define F_CPU	        1000000L
 #define BAUD 	        9600
 #define MYUBRR	((F_CPU/(BAUD*16UL))-1)
 
-unsigned char uartBuff[50];
+char commsg[LOGMAX];
+
+static void TransmitCharUSART(char cData);
 
 void InitUSART(void)
 {
@@ -17,15 +21,14 @@ void InitUSART(void)
 	UBRRH = (MYUBRR >> 8);
 	
 	UCSRB |= (1 << RXEN) | (1 << TXEN);
-	UCSRC |= (1 << URSEL) | (0 << USBS) | (3 << UCSZ0);		//8 data bits, 1 stop bits
+	UCSRC |= (1 << URSEL) | (0 << USBS) | (3 << UCSZ0);		//8 data bits, 2 stop bits
 }
 
-void TransmitCharUSART(char cData)
+static void TransmitCharUSART(char cData)
 {
 	while(!(UCSRA & (1 << UDRE))) {};
 	UDR = cData;
 }
-
 
 void TransmitUnsignedInt(unsigned int val)
 {
@@ -33,10 +36,16 @@ void TransmitUnsignedInt(unsigned int val)
 	TransmitCharUSART(val & 0xFF);
 }
 
-void print_to_serial (unsigned char *data){
+void print_to_com(const char *data){
 	
-	while(*data){
-		TransmitCharUSART(*data);
-		data++;			
+	unsigned int safe = 0;
+	
+	safe = LOGMAX;
+	
+	while(*data && safe--){
+		TransmitUnsignedInt(*data);
+		data++;	
 	}
+	
+	memset(commsg,0,LOGMAX);
 }

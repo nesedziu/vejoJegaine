@@ -8,13 +8,13 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "stdio.h"
+#include <stdio.h>
 #include "Global_defs.h"
 #include "measurements.h"
 #include "measurement_buffs.h"
 #include "control.h"
 #include "ADC.h"
-#include "UART.h"
+#include "UART.h"//TODO: repair
 
 
 unsigned int G_voltage_Measurement_s;
@@ -28,6 +28,7 @@ unsigned int G_anemometer_freq_s = 0;//debug
 #define DISPLAY_PERIOD_S 5 //debug
 #endif
 
+
 void input_task(void)
 {	
 	//nuskaito mygtukus
@@ -36,18 +37,27 @@ void input_task(void)
 }
 void output_task(void)
 {
+	
 	#ifdef DEBUG
 	if (G_display_s >= DISPLAY_PERIOD_S)
 	{
-		G_display_s = 0;
-		snprintf((char*)uartBuff,50,"wind angle: %d/n/r", G_WindAngle_Buff.buff[G_WindAngle_Buff.index-1]);
-		print_to_serial(uartBuff);
-		snprintf((char*)uartBuff,50,"wind speed: %d/n/r", G_WindSpeed_Buff.buff[G_WindSpeed_Buff.index-1]);
-		print_to_serial(uartBuff);
-		snprintf((char*)uartBuff,50,"voltage: %d/n/r", G_voltage_measurement_Buff.buff[G_voltage_measurement_Buff.index-1]);
-		print_to_serial(uartBuff);
+
+	print_to_com("/------------------------------/\r\n");
+
+	snprintf(commsg,LOGMAX,"Wind Angle: %d\r\n",G_WindAngle_Buff.buff[G_WindAngle_Buff.index-1]);
+	print_to_com(commsg);
+	
+	snprintf(commsg,LOGMAX,"Wind Speed: %d\r\n",G_WindSpeed_Buff.buff[G_WindSpeed_Buff.index-1]);
+	print_to_com(commsg);
+
+	snprintf(commsg,LOGMAX,"Voltage: %d\r\n",G_voltage_measurement_Buff.buff[G_voltage_measurement_Buff.index-1]);
+	print_to_com(commsg);
+
+	print_to_com("/------------------------------/\r\n");
 	}
 	#endif
+
+	
 	
 }
 
@@ -85,7 +95,8 @@ void timers_init(void)
 
 int main(void)
 {
-	InitUSART();
+    InitUSART();
+	output_port_config();
 	buffs_init();
 	timers_init();
 	measurements_init();
@@ -106,9 +117,6 @@ ISR(TIMER1_COMPA_vect)
 	G_voltage_Measurement_s++;
 	G_windAngle_measurement_s++;
 	G_windSpeed_measurement_s++;
-	#ifdef DEBUG
-	G_display_s++;//display
-	#endif
 	
 	G_anemometer_freq_s = TCNT0;
 	TCNT0 = 0;

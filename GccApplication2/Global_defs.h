@@ -1,3 +1,4 @@
+
 /*
  * Global_defs.h
  *
@@ -16,5 +17,7 @@
 #define VOLTAGE_MEASUREMENT_DIFF1_ADC_PIN 0
 #define VOLTAGE_MEASUREMENT_DIFF2_ADC_PIN 1
 #define WIND_ANGLE_ADC_PIN 7
+
+#define PANIC_VOLTAGE 100
 
 #endif /* GLOBAL_DEFS_H_ */
