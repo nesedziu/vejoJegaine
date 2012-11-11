@@ -43,7 +43,7 @@ void print_to_com(const char *data){
 	safe = LOGMAX;
 	
 	while(*data && safe--){
-		TransmitUnsignedInt(*data);
+		TransmitCharUSART(*data);
 		data++;	
 	}
 	
